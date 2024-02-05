@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package default.api.mingqing.xdserver.v1;
+
+option go_package = "github.com/mingqing/xdserver/api/mingqing/xdserver/v1;xdserverv1";
+
+// 同服务内的 proto 文件使用相对路径引用，既不包含代码仓库前缀
+import "api/mingqing/xdserver/v1/demo.proto";
+
+// 引入依赖的外部 proto 文件
+import "github.com/grpc-kit/api/known/status/v1/response.proto";
+import "github.com/envoyproxy/envoy/api/envoy/service/discovery/v3/discovery.proto";
+
+// 该微服务支持的 RPC 方法定义
+service MingqingXdserver {
+  rpc HealthCheck(grpc_kit.api.known.status.v1.HealthCheckRequest) returns (grpc_kit.api.known.status.v1.HealthCheckResponse) {}
+  rpc Demo(DemoRequest) returns (DemoResponse) {}
+
+  rpc FetchEndpoints(envoy.service.discovery.v3.DiscoveryRequest) returns (envoy.service.discovery.v3.DiscoveryResponse) {}
+  rpc StreamEndpoints(stream envoy.service.discovery.v3.DiscoveryRequest)
+      returns (stream envoy.service.discovery.v3.DiscoveryResponse) {
+  }
+}
