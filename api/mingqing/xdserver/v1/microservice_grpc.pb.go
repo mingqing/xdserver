@@ -26,8 +26,12 @@ const _ = grpc.SupportPackageIsVersion7
 type MingqingXdserverClient interface {
 	HealthCheck(ctx context.Context, in *v1.HealthCheckRequest, opts ...grpc.CallOption) (*v1.HealthCheckResponse, error)
 	Demo(ctx context.Context, in *DemoRequest, opts ...grpc.CallOption) (*DemoResponse, error)
-	// xds rest 实现
+	// eds rest 接口定义
 	FetchEndpoints(ctx context.Context, in *v3.DiscoveryRequest, opts ...grpc.CallOption) (*v3.DiscoveryResponse, error)
+	// cds rest 接口定义
+	FetchClusters(ctx context.Context, in *v3.DiscoveryRequest, opts ...grpc.CallOption) (*v3.DiscoveryResponse, error)
+	// rds rest 接口定义
+	FetchRoutes(ctx context.Context, in *v3.DiscoveryRequest, opts ...grpc.CallOption) (*v3.DiscoveryResponse, error)
 }
 
 type mingqingXdserverClient struct {
@@ -65,14 +69,36 @@ func (c *mingqingXdserverClient) FetchEndpoints(ctx context.Context, in *v3.Disc
 	return out, nil
 }
 
+func (c *mingqingXdserverClient) FetchClusters(ctx context.Context, in *v3.DiscoveryRequest, opts ...grpc.CallOption) (*v3.DiscoveryResponse, error) {
+	out := new(v3.DiscoveryResponse)
+	err := c.cc.Invoke(ctx, "/default.api.mingqing.xdserver.v1.MingqingXdserver/FetchClusters", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mingqingXdserverClient) FetchRoutes(ctx context.Context, in *v3.DiscoveryRequest, opts ...grpc.CallOption) (*v3.DiscoveryResponse, error) {
+	out := new(v3.DiscoveryResponse)
+	err := c.cc.Invoke(ctx, "/default.api.mingqing.xdserver.v1.MingqingXdserver/FetchRoutes", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MingqingXdserverServer is the server API for MingqingXdserver service.
 // All implementations should embed UnimplementedMingqingXdserverServer
 // for forward compatibility
 type MingqingXdserverServer interface {
 	HealthCheck(context.Context, *v1.HealthCheckRequest) (*v1.HealthCheckResponse, error)
 	Demo(context.Context, *DemoRequest) (*DemoResponse, error)
-	// xds rest 实现
+	// eds rest 接口定义
 	FetchEndpoints(context.Context, *v3.DiscoveryRequest) (*v3.DiscoveryResponse, error)
+	// cds rest 接口定义
+	FetchClusters(context.Context, *v3.DiscoveryRequest) (*v3.DiscoveryResponse, error)
+	// rds rest 接口定义
+	FetchRoutes(context.Context, *v3.DiscoveryRequest) (*v3.DiscoveryResponse, error)
 }
 
 // UnimplementedMingqingXdserverServer should be embedded to have forward compatible implementations.
@@ -87,6 +113,12 @@ func (UnimplementedMingqingXdserverServer) Demo(context.Context, *DemoRequest) (
 }
 func (UnimplementedMingqingXdserverServer) FetchEndpoints(context.Context, *v3.DiscoveryRequest) (*v3.DiscoveryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchEndpoints not implemented")
+}
+func (UnimplementedMingqingXdserverServer) FetchClusters(context.Context, *v3.DiscoveryRequest) (*v3.DiscoveryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchClusters not implemented")
+}
+func (UnimplementedMingqingXdserverServer) FetchRoutes(context.Context, *v3.DiscoveryRequest) (*v3.DiscoveryResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FetchRoutes not implemented")
 }
 
 // UnsafeMingqingXdserverServer may be embedded to opt out of forward compatibility for this service.
@@ -154,6 +186,42 @@ func _MingqingXdserver_FetchEndpoints_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MingqingXdserver_FetchClusters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v3.DiscoveryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MingqingXdserverServer).FetchClusters(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/default.api.mingqing.xdserver.v1.MingqingXdserver/FetchClusters",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MingqingXdserverServer).FetchClusters(ctx, req.(*v3.DiscoveryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _MingqingXdserver_FetchRoutes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(v3.DiscoveryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MingqingXdserverServer).FetchRoutes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/default.api.mingqing.xdserver.v1.MingqingXdserver/FetchRoutes",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MingqingXdserverServer).FetchRoutes(ctx, req.(*v3.DiscoveryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MingqingXdserver_ServiceDesc is the grpc.ServiceDesc for MingqingXdserver service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -172,6 +240,14 @@ var MingqingXdserver_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FetchEndpoints",
 			Handler:    _MingqingXdserver_FetchEndpoints_Handler,
+		},
+		{
+			MethodName: "FetchClusters",
+			Handler:    _MingqingXdserver_FetchClusters_Handler,
+		},
+		{
+			MethodName: "FetchRoutes",
+			Handler:    _MingqingXdserver_FetchRoutes_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

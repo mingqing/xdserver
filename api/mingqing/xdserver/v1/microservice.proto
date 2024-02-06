@@ -18,4 +18,10 @@ service MingqingXdserver {
 
   // eds rest 接口定义
   rpc FetchEndpoints(envoy.service.discovery.v3.DiscoveryRequest) returns (envoy.service.discovery.v3.DiscoveryResponse) {}
+
+  // cds rest 接口定义
+  rpc FetchClusters(envoy.service.discovery.v3.DiscoveryRequest) returns (envoy.service.discovery.v3.DiscoveryResponse) {}
+
+  // rds rest 接口定义
+  rpc FetchRoutes(envoy.service.discovery.v3.DiscoveryRequest) returns (envoy.service.discovery.v3.DiscoveryResponse) {}
 }

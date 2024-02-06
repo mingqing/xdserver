@@ -23,3 +23,11 @@ http:
   - selector: default.api.mingqing.xdserver.v1.MingqingXdserver.FetchEndpoints
     post: "/api/v3/discovery:endpoints"
     body: "*"
+
+  - selector: default.api.mingqing.xdserver.v1.MingqingXdserver.FetchClusters
+    post: "/api/v3/discovery:clusters"
+    body: "*"
+
+  - selector: default.api.mingqing.xdserver.v1.MingqingXdserver.FetchRoutes
+    post: "/api/v3/discovery:routes"
+    body: "*"
