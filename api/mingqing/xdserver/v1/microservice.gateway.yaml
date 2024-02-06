@@ -31,3 +31,7 @@ http:
   - selector: default.api.mingqing.xdserver.v1.MingqingXdserver.FetchRoutes
     post: "/api/v3/discovery:routes"
     body: "*"
+
+  - selector: default.api.mingqing.xdserver.v1.MingqingXdserver.FetchListeners
+    post: "/api/v3/discovery:listeners"
+    body: "*"

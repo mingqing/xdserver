@@ -24,4 +24,7 @@ service MingqingXdserver {
 
   // rds rest 接口定义
   rpc FetchRoutes(envoy.service.discovery.v3.DiscoveryRequest) returns (envoy.service.discovery.v3.DiscoveryResponse) {}
+
+  // lds rest 接口定义
+  rpc FetchListeners(envoy.service.discovery.v3.DiscoveryRequest) returns (envoy.service.discovery.v3.DiscoveryResponse) {}
 }

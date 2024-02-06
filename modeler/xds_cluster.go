@@ -4,11 +4,88 @@ import (
 	clusterv3 "github.com/envoyproxy/go-control-plane/envoy/config/cluster/v3"
 	corev3 "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	endpointv3 "github.com/envoyproxy/go-control-plane/envoy/config/endpoint/v3"
+	listenerv3 "github.com/envoyproxy/go-control-plane/envoy/config/listener/v3"
 	routev3 "github.com/envoyproxy/go-control-plane/envoy/config/route/v3"
+	exroutev3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/http/router/v3"
+	hcmv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/filters/network/http_connection_manager/v3"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // DSCluster xx
 type DSCluster struct {
+}
+
+// DemoListeners xx
+func (x *DSCluster) DemoListeners() []*listenerv3.Listener {
+	result := make([]*listenerv3.Listener, 0)
+
+	ro := &exroutev3.Router{}
+	oo, _ := anypb.New(ro)
+
+	hm := &hcmv3.HttpConnectionManager{
+		StatPrefix: "ingress_http",
+		RouteSpecifier: &hcmv3.HttpConnectionManager_Rds{
+			Rds: &hcmv3.Rds{
+				RouteConfigName: "test-route-1",
+				ConfigSource: &corev3.ConfigSource{
+					ConfigSourceSpecifier: &corev3.ConfigSource_ApiConfigSource{
+						ApiConfigSource: &corev3.ApiConfigSource{
+							ApiType:             corev3.ApiConfigSource_REST,
+							TransportApiVersion: corev3.ApiVersion_V3,
+							ClusterNames:        []string{"xds-cluster"},
+						},
+					},
+				},
+			},
+		},
+		HttpFilters: []*hcmv3.HttpFilter{
+			{
+				Name: "envoy.filters.http.router",
+				ConfigType: &hcmv3.HttpFilter_TypedConfig{
+					TypedConfig: oo,
+				},
+			},
+		},
+	}
+	xx, _ := anypb.New(hm)
+
+	r1 := &listenerv3.Listener{
+		Name: "listener_0",
+		Address: &corev3.Address{
+			Address: &corev3.Address_SocketAddress{
+				SocketAddress: &corev3.SocketAddress{
+					Address:       "0.0.0.0",
+					PortSpecifier: &corev3.SocketAddress_PortValue{PortValue: 80},
+				},
+			},
+		},
+
+		ListenerFilters: []*listenerv3.ListenerFilter{
+			{
+				Name: "envoy.filters.listener.http_inspector",
+				ConfigType: &listenerv3.ListenerFilter_TypedConfig{
+					TypedConfig: &anypb.Any{TypeUrl: "type.googleapis.com/envoy.extensions.filters.listener.http_inspector.v3.HttpInspector"},
+				},
+			},
+		},
+
+		FilterChains: []*listenerv3.FilterChain{
+			{
+				Filters: []*listenerv3.Filter{
+					{
+						Name: "envoy.filters.network.http_connection_manager",
+						ConfigType: &listenerv3.Filter_TypedConfig{
+							TypedConfig: xx,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	result = append(result, r1)
+
+	return result
 }
 
 // DemoRoute xx
