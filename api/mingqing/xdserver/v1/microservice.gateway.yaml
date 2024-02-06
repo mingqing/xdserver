@@ -19,3 +19,7 @@ http:
         response_body: "ping"
       - delete: "/api/demo/{uuid}"
         response_body: "empty"
+
+  - selector: default.api.mingqing.xdserver.v1.MingqingXdserver.FetchEndpoints
+    post: "/api/v3/discovery:endpoints"
+    body: "*"

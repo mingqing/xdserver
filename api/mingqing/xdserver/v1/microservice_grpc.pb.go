@@ -26,8 +26,8 @@ const _ = grpc.SupportPackageIsVersion7
 type MingqingXdserverClient interface {
 	HealthCheck(ctx context.Context, in *v1.HealthCheckRequest, opts ...grpc.CallOption) (*v1.HealthCheckResponse, error)
 	Demo(ctx context.Context, in *DemoRequest, opts ...grpc.CallOption) (*DemoResponse, error)
+	// xds rest 实现
 	FetchEndpoints(ctx context.Context, in *v3.DiscoveryRequest, opts ...grpc.CallOption) (*v3.DiscoveryResponse, error)
-	StreamEndpoints(ctx context.Context, opts ...grpc.CallOption) (MingqingXdserver_StreamEndpointsClient, error)
 }
 
 type mingqingXdserverClient struct {
@@ -65,45 +65,14 @@ func (c *mingqingXdserverClient) FetchEndpoints(ctx context.Context, in *v3.Disc
 	return out, nil
 }
 
-func (c *mingqingXdserverClient) StreamEndpoints(ctx context.Context, opts ...grpc.CallOption) (MingqingXdserver_StreamEndpointsClient, error) {
-	stream, err := c.cc.NewStream(ctx, &MingqingXdserver_ServiceDesc.Streams[0], "/default.api.mingqing.xdserver.v1.MingqingXdserver/StreamEndpoints", opts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &mingqingXdserverStreamEndpointsClient{stream}
-	return x, nil
-}
-
-type MingqingXdserver_StreamEndpointsClient interface {
-	Send(*v3.DiscoveryRequest) error
-	Recv() (*v3.DiscoveryResponse, error)
-	grpc.ClientStream
-}
-
-type mingqingXdserverStreamEndpointsClient struct {
-	grpc.ClientStream
-}
-
-func (x *mingqingXdserverStreamEndpointsClient) Send(m *v3.DiscoveryRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *mingqingXdserverStreamEndpointsClient) Recv() (*v3.DiscoveryResponse, error) {
-	m := new(v3.DiscoveryResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
 // MingqingXdserverServer is the server API for MingqingXdserver service.
 // All implementations should embed UnimplementedMingqingXdserverServer
 // for forward compatibility
 type MingqingXdserverServer interface {
 	HealthCheck(context.Context, *v1.HealthCheckRequest) (*v1.HealthCheckResponse, error)
 	Demo(context.Context, *DemoRequest) (*DemoResponse, error)
+	// xds rest 实现
 	FetchEndpoints(context.Context, *v3.DiscoveryRequest) (*v3.DiscoveryResponse, error)
-	StreamEndpoints(MingqingXdserver_StreamEndpointsServer) error
 }
 
 // UnimplementedMingqingXdserverServer should be embedded to have forward compatible implementations.
@@ -118,9 +87,6 @@ func (UnimplementedMingqingXdserverServer) Demo(context.Context, *DemoRequest) (
 }
 func (UnimplementedMingqingXdserverServer) FetchEndpoints(context.Context, *v3.DiscoveryRequest) (*v3.DiscoveryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FetchEndpoints not implemented")
-}
-func (UnimplementedMingqingXdserverServer) StreamEndpoints(MingqingXdserver_StreamEndpointsServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamEndpoints not implemented")
 }
 
 // UnsafeMingqingXdserverServer may be embedded to opt out of forward compatibility for this service.
@@ -188,32 +154,6 @@ func _MingqingXdserver_FetchEndpoints_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MingqingXdserver_StreamEndpoints_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(MingqingXdserverServer).StreamEndpoints(&mingqingXdserverStreamEndpointsServer{stream})
-}
-
-type MingqingXdserver_StreamEndpointsServer interface {
-	Send(*v3.DiscoveryResponse) error
-	Recv() (*v3.DiscoveryRequest, error)
-	grpc.ServerStream
-}
-
-type mingqingXdserverStreamEndpointsServer struct {
-	grpc.ServerStream
-}
-
-func (x *mingqingXdserverStreamEndpointsServer) Send(m *v3.DiscoveryResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *mingqingXdserverStreamEndpointsServer) Recv() (*v3.DiscoveryRequest, error) {
-	m := new(v3.DiscoveryRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
 // MingqingXdserver_ServiceDesc is the grpc.ServiceDesc for MingqingXdserver service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -234,13 +174,6 @@ var MingqingXdserver_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MingqingXdserver_FetchEndpoints_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "StreamEndpoints",
-			Handler:       _MingqingXdserver_StreamEndpoints_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "api/mingqing/xdserver/v1/microservice.proto",
 }
